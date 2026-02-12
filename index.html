@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMERGENCY BROADCAST SYSTEM - CLASSIFIED</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        /* Scanline Effect */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 255, 0, 0.03) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanlines 0.1s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 4px; }
+        }
+
+        /* Vignette Effect */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+            animation: glitch-skew 3s infinite;
+        }
+
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg); }
+            10% { transform: skew(-2deg); }
+            20% { transform: skew(0deg); }
+            30% { transform: skew(1deg); }
+            40% { transform: skew(0deg); }
+            100% { transform: skew(0deg); }
+        }
+
+        /* Terminal Window */
+        .terminal {
+            background: rgba(10, 10, 10, 0.95);
+            border: 3px solid #00ff00;
+            border-radius: 0;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.3),
+                inset 0 0 100px rgba(0, 255, 0, 0.05);
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 900px;
+            position: relative;
+        }
+
+        .terminal::before {
+            content: '● ● ●';
+            position: absolute;
+            top: -1.5rem;
+            left: 1rem;
+            color: #00ff00;
+            font-size: 0.8rem;
+            letter-spacing: 0.5rem;
+        }
+
+        .terminal-header {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.8rem;
+            color: #ff00ff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 1000px;
+        }
+
+        .hero h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 10vw, 8rem);
+            color: #00ff00;
+            text-shadow: 
+                0 0 10px #00ff00,
+                0 0 20px #00ff00,
+                0 0 30px #00ff00,
+                0 0 40px #00ff00;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+            animation: flicker 4s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            41.99% { opacity: 1; }
+            42% { opacity: 0.8; }
+            43% { opacity: 1; }
+            45.99% { opacity: 1; }
+            46% { opacity: 0.6; }
+            46.5% { opacity: 1; }
+        }
+
+        .subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #ff00ff;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+        }
+
+        .typing {
+            font-size: 1.2rem;
+            color: #00ff00;
+            margin: 2rem 0;
+            font-family: 'Space Mono', monospace;
+            overflow: hidden;
+            border-right: 3px solid #00ff00;
+            white-space: nowrap;
+            display: inline-block;
+            animation: typing 4s steps(50) infinite, blink-cursor 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            0%, 100% { width: 0; }
+            50%, 90% { width: 100%; }
+        }
+
+        @keyframes blink-cursor {
+            50% { border-color: transparent; }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Grid System */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .grid-item {
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid #00ff00;
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+        }
+
+        .grid-item:hover {
+            border-color: #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .grid-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: #00ff00;
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transition: all 0.3s ease;
+        }
+
+        .grid-item:hover::after {
+            background: #ff00ff;
+        }
+
+        .grid-item h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            color: #ff00ff;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .grid-item p {
+            color: #00ff00;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        /* ASCII Art Section */
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(0.5rem, 1vw, 0.8rem);
+            color: #00ff00;
+            white-space: pre;
+            overflow-x: auto;
+            margin: 2rem 0;
+            text-align: center;
+            line-height: 1.2;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        /* Interactive Console */
+        .console {
+            background: #000;
+            border: 3px solid #00ff00;
+            padding: 2rem;
+            margin: 3rem 0;
+            font-family: 'Space Mono', monospace;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .console-line {
+            color: #00ff00;
+            margin: 0.5rem 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        .console-line:nth-child(1) { animation-delay: 0.1s; }
+        .console-line:nth-child(2) { animation-delay: 0.4s; }
+        .console-line:nth-child(3) { animation-delay: 0.7s; }
+        .console-line:nth-child(4) { animation-delay: 1.0s; }
+        .console-line:nth-child(5) { animation-delay: 1.3s; }
+        .console-line:nth-child(6) { animation-delay: 1.6s; }
+        .console-line:nth-child(7) { animation-delay: 1.9s; }
+        .console-line:nth-child(8) { animation-delay: 2.2s; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .console-prompt {
+            color: #ff00ff;
+        }
+
+        .console-user {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        /* Button */
+        .cyber-button {
+            background: transparent;
+            border: 3px solid #00ff00;
+            color: #00ff00;
+            padding: 1.5rem 3rem;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin: 2rem auto;
+            display: block;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #00ff00;
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .cyber-button:hover {
+            color: #000;
+            border-color: #ff00ff;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .cyber-button:hover::before {
+            left: 0;
+        }
+
+        .cyber-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Marquee */
+        .marquee {
+            background: #00ff00;
+            color: #000;
+            padding: 1rem;
+            margin: 3rem 0;
+            overflow: hidden;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 0.2em;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: scroll 25s linear infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes scroll {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
+        }
+
+        /* Stats Display */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat-box {
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid #00ff00;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #ff00ff;
+            transform: translateY(-3px);
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            to { left: 100%; }
+        }
+
+        .stat-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+
+        .stat-label {
+            color: #00ff00;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            margin-top: 0.5rem;
+        }
+
+        /* Matrix Rain Effect */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        /* Glitch Text */
+        .glitch-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            color: #00ff00;
+            text-align: center;
+            margin: 3rem 0;
+            position: relative;
+            animation: glitch-anim 5s infinite;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            width: 100%;
+        }
+
+        .glitch-text::before {
+            color: #ff00ff;
+            animation: glitch-anim-2 3s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+
+        .glitch-text::after {
+            color: #00ffff;
+            animation: glitch-anim-3 2.5s infinite;
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+        }
+
+        @keyframes glitch-anim {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0%, 100% { transform: translate(0); }
+            33% { transform: translate(-4px, 0); }
+            66% { transform: translate(4px, 0); }
+        }
+
+        @keyframes glitch-anim-3 {
+            0%, 100% { transform: translate(0); }
+            33% { transform: translate(4px, 0); }
+            66% { transform: translate(-4px, 0); }
+        }
+
+        /* Pulse animation for message output */
+        .message-pulse {
+            animation: pulse 2s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .terminal {
+                padding: 1.5rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ascii-art {
+                font-size: 0.5rem;
+            }
+
+            .cyber-button {
+                padding: 1rem 2rem;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="scanline"></div>
+    <div class="vignette"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content glitch">
+            <div class="terminal-header">INCOMING CLASSIFIED TRANSMISSION...</div>
+            <h1>ALERT: SADIA IS AWESOME</h1>
+            <p class="subtitle">This is not a drill - Subject ID: LEGENDARY</p>
+            <div class="typing">Initializing mood enhancement protocol for user: SADIA...</div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- ASCII Art -->
+        <div class="ascii-art">
+    ⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀
+    ⠀⠀⢀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄
+    ⠀⠀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
+    ⠀⢰⣿⣿⡿⠿⠛⠛⠛⠛⠉⠉⠉⠉⠉⠉⠉⠉⠛⠛⠛⠛⠿⠿⣿⣿⣿⣿⡇
+    ⠀⠘⡿⠋⠀⠀ SADIA, YOU'RE DOING GREAT ⠀⠀⠈⠙⢿⣿⠟⠁
+    ⠀⠀⠀⠀⠀⠀ (even if it doesn't feel like it)⠀⠀⠀⠀⠀
+        </div>
+
+        <!-- Console Output -->
+        <div class="console">
+            <div class="console-line"><span class="console-prompt">&gt;</span> Initiating user scan...</div>
+            <div class="console-line"><span class="console-prompt">&gt;</span> USER IDENTIFIED: <span class="console-user">SADIA</span></div>
+            <div class="console-line"><span class="console-prompt">&gt;</span> Scanning for awesomeness levels...</div>
+            <div class="console-line"><span class="console-prompt">&gt;</span> STATUS: Awesomeness levels off the charts</div>
+            <div class="console-line"><span class="console-prompt">&gt;</span> WARNING: Subject may not realize how cool they are</div>
+            <div class="console-line"><span class="console-prompt">&gt;</span> INITIATING: Reality check sequence</div>
+            <div class="console-line"><span class="console-prompt">&gt;</span> RESULT: <span class="console-user">SADIA</span> is literally amazing</div>
+            <div class="console-line"><span class="console-prompt">&gt;</span> Process complete. Have a nice day, <span class="console-user">SADIA</span> :)</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="terminal">
+            <h2 class="glitch-text" data-text="SADIA'S CURRENT STATUS">SADIA'S CURRENT STATUS</h2>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">That Cool Friend</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Potential</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">Stronger Than She Thinks</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">404</div>
+                    <div class="stat-label">Reasons Not To Be Proud</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marquee -->
+        <div class="marquee">
+            <div class="marquee-content">
+                ⚡ BREAKING NEWS: SADIA STILL BEING AWESOME ⚡ SOURCES CONFIRM: SHE'S COOLER THAN SHE THINKS ⚡ UPDATE: SERIOUSLY THOUGH, SHE'S KILLING IT ⚡ ALERT: SADIA IS LITERALLY AMAZING ⚡
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="terminal">
+            <h2 style="font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: #ff00ff; text-align: center; margin-bottom: 2rem;">SYSTEM REPORT: SUBJECT SADIA</h2>
+            
+            <div class="grid">
+                <div class="grid-item">
+                    <h3>Plot Twist</h3>
+                    <p>You know what's wild? While you've been doubting yourself, you've actually been doing pretty damn well. Yeah, I said it. Someone had to tell you, Sadia.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Fun Fact</h3>
+                    <p>Your brain is literally more complex than the entire internet. And you're using it to survive hard stuff. That's pretty badass if you ask me.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Reality Check</h3>
+                    <p>You're still here, Sadia. Still going. Still showing up. That alone makes you tougher than you give yourself credit for. No cap.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Reminder</h3>
+                    <p>Bad days don't cancel out good ones. Progress isn't linear. And you don't need to be "fixed" because you're not broken.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Evidence</h3>
+                    <p>The fact that you make people laugh, think, and feel seen? That's a superpower, Sadia. Don't underestimate it.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Truth Bomb</h3>
+                    <p>Your friend made you this entire website because they think you're worth it. And they're right. So there.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Button -->
+        <button class="cyber-button" onclick="hackTheMainframe()">
+            CLICK FOR INSTANT SEROTONIN
+        </button>
+
+        <div id="message-output" style="text-align: center; min-height: 3rem; margin: 2rem 0;"></div>
+
+        <!-- Final Terminal -->
+        <div class="terminal">
+            <h2 style="font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; color: #00ff00; text-align: center; margin-bottom: 2rem;">FINAL TRANSMISSION</h2>
+            <p style="color: #00ff00; font-size: 1.2rem; line-height: 2; text-align: center;">
+                Look Sadia, I'm not gonna feed you some generic "it gets better" garbage. Some days suck. That's just facts. But here's the thing: you're still showing up, still trying, still being you. And that version of you? Pretty damn cool, if you ask literally anyone who knows you. Including me.
+            </p>
+            <p style="color: #ff00ff; font-size: 1.4rem; text-align: center; margin-top: 2rem; font-weight: bold;">
+                You've got this, Sadia. Even when you don't.
+            </p>
+            <p style="color: #00ffff; font-size: 1rem; text-align: center; margin-top: 1.5rem; font-style: italic;">
+                — From someone who thinks you're pretty legendary
+            </p>
+        </div>
+
+        <div class="ascii-art" style="margin-top: 3rem;">
+    ╔═══════════════════════════════════════════════╗
+    ║  END OF TRANSMISSION - STAY AWESOME, SADIA  ║
+    ╚═══════════════════════════════════════════════╝
+        </div>
+    </div>
+
+    <script>
+        // Matrix Rain Effect with name
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = 'SADIA0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*()';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00ff00';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 35);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Button Interaction with personalized messages
+        const messages = [
+            "Sadia is literally crushing it right now",
+            "Plot twist: Sadia is actually awesome",
+            "Sadia's vibe? Immaculate.",
+            "Main character energy: SADIA",
+            "Status: Sadia = Legendary",
+            "Breaking news: Sadia is amazing",
+            "Error 404: Sadia's self-doubt not found",
+            "System update: Sadia is killing it",
+            "Analysis complete: 100% that person (it's Sadia)",
+            "Scan results: Sadia is cooler than she thinks",
+            "Alert: Sadia's awesomeness levels critical",
+            "Report: Sadia's doing great, actually",
+            "Confirmed: Sadia is the blueprint",
+            "Data shows: Sadia is incredible",
+            "Warning: Too much awesome detected in Sadia",
+            "Fact check: Sadia is valid AF",
+            "Debug complete: No flaws found in Sadia",
+            "Processing... Result: Sadia rocks",
+            "Authentication successful: User SADIA is elite",
+            "Verification: Sadia's energy is unmatched"
+        ];
+
+        let lastIndex = -1;
+        let clickCount = 0;
+
+        function hackTheMainframe() {
+            clickCount++;
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * messages.length);
+            } while (randomIndex === lastIndex);
+            lastIndex = randomIndex;
+
+            const output = document.getElementById('message-output');
+            output.innerHTML = `
+                <div class="message-pulse" style="font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; color: #ff00ff; text-shadow: 0 0 20px #ff00ff;">
+                    ${messages[randomIndex]}
+                </div>
+            `;
+
+            // Easter egg after 10 clicks
+            if (clickCount === 10) {
+                output.innerHTML += `
+                    <div style="font-family: 'Space Mono', monospace; font-size: 1rem; color: #00ffff; margin-top: 1rem; animation: fadeIn 1s;">
+                        (Okay Sadia, you can stop clicking now... but we both know you're gonna keep going 😏)
+                    </div>
+                `;
+            }
+
+            if (clickCount === 20) {
+                output.innerHTML += `
+                    <div style="font-family: 'Space Mono', monospace; font-size: 1rem; color: #00ffff; margin-top: 1rem; animation: fadeIn 1s;">
+                        (20 clicks?! Someone's really fishing for validation. It's okay, we get it ❤️)
+                    </div>
+                `;
+            }
+
+            // Create glitch effect
+            createGlitchEffect();
+        }
+
+        function createGlitchEffect() {
+            const colors = ['#00ff00', '#ff00ff', '#00ffff'];
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const glitch = document.createElement('div');
+                    glitch.style.position = 'fixed';
+                    glitch.style.left = Math.random() * 100 + '%';
+                    glitch.style.top = Math.random() * 100 + '%';
+                    glitch.style.width = Math.random() * 100 + 50 + 'px';
+                    glitch.style.height = '2px';
+                    glitch.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    glitch.style.opacity = '0.8';
+                    glitch.style.pointerEvents = 'none';
+                    glitch.style.zIndex = '9998';
+                    document.body.appendChild(glitch);
+
+                    setTimeout(() => glitch.remove(), 100);
+                }, i * 20);
+            }
+        }
+
+        // Konami code easter egg (up, up, down, down, left, right, left, right, b, a)
+        let konamiCode = [];
+        const konamiPattern = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.key);
+            konamiCode = konamiCode.slice(-10);
+            
+            if (konamiCode.join(',') === konamiPattern.join(',')) {
+                const output = document.getElementById('message-output');
+                output.innerHTML = `
+                    <div style="font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: #00ffff; text-shadow: 0 0 30px #00ffff; animation: pulse 2s ease-in-out infinite;">
+                        🎮 CHEAT CODE ACTIVATED 🎮<br>
+                        <span style="font-size: 1.5rem; color: #ff00ff;">SADIA IS NOW IN GOD MODE</span>
+                    </div>
+                `;
+                createGlitchEffect();
+                createGlitchEffect();
+            }
+        });
+    </script>
+</body>
+</html>
